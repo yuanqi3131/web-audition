@@ -95,6 +95,7 @@ console.log(sub.name); // 夏娃
 ##### 4.原型式继承
 
 ```javascript
+<<<<<<< HEAD
 function Person(name) { // 提供父类
     this.name = name;
     this.sayName = function () {
@@ -106,10 +107,56 @@ Person.prototype.age = 20;
 
 function container(obj) {
     function F() {}
+=======
+var person = {
+    name: 'Bob',
+    age: 21,
+    study: ['math','subject'],
+}
+
+function container(obj) { // Object.create()的原理 Object.create()的参数为新创建对象的原型
+    function F() { } // 创建临时性的构造函数
+    F.prototype = obj;// 讲传入对象作为临时构造函数的原型
+    return new F();// 返回临时构造函数新实例
+}
+
+var per = container(person);
+console.log(per.name) // Bob
+console.log(per.age) // 21
+console.log(per.study) // ["math", "subject"]
+per.name = 'Tom'
+per.age = 22
+per.study.push('Chinese')
+
+var per1 = container(person);
+console.log(per1.name) // Bob
+console.log(per1.age) // 21
+console.log(per1.study) // ["math", "subject","Chinese"]
+
+```
+
+
+缺点： 父类包含引用类型的属性值子类始终都会**共享相应的值** 
+
+##### 5.寄生式继承
+
+```javascript
+var person = {
+    name: 'Bob',
+    age: 21,
+    study: ['math','subject'],
+}
+person.prototype.sayHi = function() {
+    console.log(123)
+}
+function container(obj) {
+    function F() { }
+>>>>>>> afc73090c4f78e7d2df71020eb93d915398e2d99
     F.prototype = obj;
     return new F();
 }
 
+<<<<<<< HEAD
 var man = new Person();
 var man1 = container(man);
 console.log(man1.age); // 20
@@ -120,22 +167,52 @@ console.log(man1.age); // 20
 缺点：
 
 ##### 5.寄生式继承
+=======
+function subContainer(obj) {
+    var sub = container(obj);
+    sub.address = "中国";
+    return sub;
+}
+var per = subContainer(person);
+
+console.log(per.name) // Bob
+console.log(per.age) // 21
+console.log(per.study) // ["math", "subject"]
+console.log(per.address) // 中国
+console.log(per.sayHi()) // 报错 Cannot set property 'sayHi' of undefined
+```
+
+
+缺点：通过上面的报错 我们可以看到没有使用到原型
+
+##### 6.寄生组合式继承
+>>>>>>> afc73090c4f78e7d2df71020eb93d915398e2d99
 
 ```javascript
 function Person(name) { // 提供父类
     this.name = name;
+<<<<<<< HEAD
+=======
+    this.study = ['math','subject']
+>>>>>>> afc73090c4f78e7d2df71020eb93d915398e2d99
     this.sayName = function () {
         console.log(this.name)
     }
 }
 
+<<<<<<< HEAD
 Person.prototype.age = 20;
 function container(obj) {
     function F() {}
+=======
+function container(obj) {
+    function F() { }
+>>>>>>> afc73090c4f78e7d2df71020eb93d915398e2d99
     F.prototype = obj;
     return new F();
 }
 
+<<<<<<< HEAD
 function subContainer(obj){
     var sub = container(obj);
     sub.name="哈哈";
@@ -150,3 +227,56 @@ console.log(man1.name); // 哈哈
 
 优点：
 缺点：
+=======
+function subContainer(superType,subType) { //superType：传递父类参数 subType：传递子类参数
+    var sub = container(superType.prototype); //相当于Object.create 创建以父类原型为原型的对象
+    sub.constructor = subType; // 新创建的对象的构造指向子类
+    subType.prototype = sub;// 子类的原型为新创建的对象
+}
+
+function Sub(name,age) {
+    // 子类
+    Person.call(this,name)
+}
+
+subContainer(Person, Sub);
+
+var sub1 = new Sub('小潘')
+var sub2 = new Sub('小袁')
+sub1.sayName(); //小潘
+sub2.sayName(); //小袁
+sub1.study.push("chinese"); 
+console.log(sub1.study) // ["math", "subject", "chinese"]
+sub2.study.push("art"); 
+console.log(sub2.study) // ["math", "subject", "art"]
+```
+
+优点：解决了原型式继承与寄生式继承的缺点，可以访问到原型链上的方法属性，单个实例改变父类的属性方法不会影响到其他实例。
+
+缺点：实现太复杂
+
+
+
+7.ES6 class extends继承
+
+```javascript
+class Person {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+}
+
+class man extends Person {
+  constructor(x, y) {
+    super(x, y); // super一定要放在这里的第一行
+  }
+}
+```
+
+缺点：兼容性问题
+
+ ES5和ES6继承区别就是在于：
+　　　　1.ES5先创建子类，在实例化父类并添加到子类this中
+　　　　2. ES6的继承是先创建父类的实例对象this(必须先调用super方法), 再调用子类的构造函数修改this 
+>>>>>>> afc73090c4f78e7d2df71020eb93d915398e2d99
